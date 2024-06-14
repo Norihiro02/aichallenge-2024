@@ -8,8 +8,10 @@ class PID{
     double Intaval_time;
     double integral;
     double bf_diff;
-    PID(double p,double i,double d,double intaval_time);
 
+    public:
+    PID();
+    void setPID(double p,double i,double d,double intaval_time);
     double exec(double diff);
 };
 #endif

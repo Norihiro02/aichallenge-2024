@@ -9,6 +9,7 @@
 #include <nav_msgs/msg/odometry.hpp>
 #include <optional>
 #include <rclcpp/rclcpp.hpp>
+#include "pid.hpp"
 
 namespace simple_pure_pursuit {
 
@@ -49,6 +50,7 @@ class SimplePurePursuit : public rclcpp::Node {
 
 
  private:
+  PID pid;
   void onTimer();
   bool subscribeMessageAvailable();
 };

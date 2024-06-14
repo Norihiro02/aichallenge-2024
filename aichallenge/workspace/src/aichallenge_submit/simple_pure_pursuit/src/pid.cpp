@@ -1,5 +1,7 @@
 #include "../include/simple_pure_pursuit/pid.hpp"
-PID::PID(double p,double i,double d,double intaval_time){
+PID::PID(){
+}
+void PID::setPID(double p,double i,double d,double intaval_time){
     this->P = p;
     this->I = i;
     this->D = d;

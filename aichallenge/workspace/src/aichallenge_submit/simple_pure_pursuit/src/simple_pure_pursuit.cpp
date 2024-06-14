@@ -22,7 +22,8 @@ SimplePurePursuit::SimplePurePursuit()
   lookahead_min_distance_(declare_parameter<float>("lookahead_min_distance", 1.0)),
   speed_proportional_gain_(declare_parameter<float>("speed_proportional_gain", 1.0)),
   use_external_target_vel_(declare_parameter<bool>("use_external_target_vel", false)),
-  external_target_vel_(declare_parameter<float>("external_target_vel", 0.0))
+  external_target_vel_(declare_parameter<float>("external_target_vel", 0.0)),
+  pid(PID())
 {
   pub_cmd_ = create_publisher<AckermannControlCommand>("output/control_cmd", 1);
 
@@ -30,7 +31,12 @@ SimplePurePursuit::SimplePurePursuit()
     "input/kinematics", 1, [this](const Odometry::SharedPtr msg) { odometry_ = msg; });
   sub_trajectory_ = create_subscription<Trajectory>(
     "input/trajectory", 1, [this](const Trajectory::SharedPtr msg) { trajectory_ = msg; });
-
+  
+  double speed_p_gain = declare_parameter<float>("speed_p_gain", 10.0);
+  double speed_i_gain = declare_parameter<float>("speed_i_gain", 0.0);
+  double speed_d_gain = declare_parameter<float>("speed_d_gain", 0.0);
+  pid.setPID(speed_p_gain, speed_i_gain, speed_d_gain , 0.03);
+  
   using namespace std::literals::chrono_literals;
   timer_ =
     rclcpp::create_timer(this, get_clock(), 30ms, std::bind(&SimplePurePursuit::onTimer, this));
@@ -77,9 +83,9 @@ void SimplePurePursuit::onTimer()
     double current_longitudinal_vel = odometry_->twist.twist.linear.x;
 
     cmd.longitudinal.speed = target_longitudinal_vel;
-    cmd.longitudinal.acceleration =
-      speed_proportional_gain_ * (target_longitudinal_vel - current_longitudinal_vel);
-
+    //cmd.longitudinal.acceleration =
+    //  speed_proportional_gain_ * (target_longitudinal_vel - current_longitudinal_vel);
+    cmd.longitudinal.acceleration = pid.exec(target_longitudinal_vel - current_longitudinal_vel);
     // calc lateral control
     //// calc lookahead distance
     double lookahead_distance = lookahead_gain_ * target_longitudinal_vel + lookahead_min_distance_;
