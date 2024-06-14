@@ -11,6 +11,7 @@ ament_auto_find_build_dependencies()
 
 ament_auto_add_executable(simple_pure_pursuit
   src/simple_pure_pursuit.cpp
+  src/pid.cpp
 )
 
 ament_auto_package()
